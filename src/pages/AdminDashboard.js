@@ -22,36 +22,30 @@ function AdminDashboard() {
   const token = localStorage.getItem("token")
   const role = localStorage.getItem("role")
 
-  // 🔐 Protect admin page
   useEffect(() => {
     if (role !== "admin") {
       window.location.href = "/dashboard"
     }
   }, [role])
 
-  // 🔄 Fetch complaints
   const fetchAllComplaints = async () => {
     try {
       const res = await axios.get(
         "https://complaint-backend-j2wy.onrender.com/api/complaints/all",
         {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          headers: { Authorization: `Bearer ${token}` }
         }
       )
       setComplaints(res.data)
-    } catch (err) {
-          console.log("Fetch error") // silent}
+    } catch {
+      console.log("Fetch error")
     } finally {
       setLoading(false)
     }
   }
 
-  // 🔁 Auto refresh
   useEffect(() => {
     fetchAllComplaints()
-
     const interval = setInterval(fetchAllComplaints, 3000)
     return () => clearInterval(interval)
   }, [])
@@ -61,23 +55,16 @@ function AdminDashboard() {
       await axios.put(
         `https://complaint-backend-j2wy.onrender.com/api/complaints/${id}`,
         { status },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       )
 
       setComplaints(prev =>
-        prev.map(c =>
-          c._id === id ? { ...c, status } : c
-        )
+        prev.map(c => c._id === id ? { ...c, status } : c)
       )
 
       toast.success("Updated ✅")
-
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Update failed ❌")
+    } catch {
+      toast.error("Update failed ❌")
     }
   }
 
@@ -88,15 +75,13 @@ function AdminDashboard() {
 
   const chartData = {
     labels: ["Pending", "Resolved"],
-    datasets: [
-      {
-        data: [
-          complaints.filter(c => c.status === "pending").length,
-          complaints.filter(c => c.status === "resolved").length
-        ],
-        backgroundColor: ["#f59e0b", "#22c55e"]
-      }
-    ]
+    datasets: [{
+      data: [
+        complaints.filter(c => c.status === "pending").length,
+        complaints.filter(c => c.status === "resolved").length
+      ],
+      backgroundColor: ["#f59e0b", "#22c55e"]
+    }]
   }
 
   return (
@@ -106,7 +91,6 @@ function AdminDashboard() {
       <div style={mainContainer}>
         <h1>Admin Dashboard 🚀</h1>
 
-        {/* SEARCH */}
         <div style={searchRow}>
           <input
             placeholder="Search..."
@@ -126,7 +110,6 @@ function AdminDashboard() {
           <h3 style={{ textAlign: "center" }}>Loading...</h3>
         ) : (
           <>
-            {/* STATS */}
             <div style={statsRow}>
               <div style={statCard}><h3>Total</h3><p>{complaints.length}</p></div>
               <div style={statCard}><h3>Pending</h3><p>{complaints.filter(c => c.status === "pending").length}</p></div>
@@ -134,14 +117,15 @@ function AdminDashboard() {
               <div style={chartBox}><Pie data={chartData} /></div>
             </div>
 
-            {/* LIST */}
             <div style={grid}>
               {filtered.map(c => (
                 <div key={c._id} style={card}>
                   <h3>{c.title}</h3>
                   <p>{c.description}</p>
 
-                  {/* ❌ EMAIL REMOVED */}
+                  {c.image && (
+                    <img src={c.image} alt="" style={img} />
+                  )}
 
                   <p style={{
                     color: c.status === "resolved" ? "#22c55e" : "#f59e0b",
@@ -168,23 +152,47 @@ function AdminDashboard() {
   )
 }
 
-// styles
 const mainContainer = {
   flex: 1,
-  padding: "30px",
+  padding: "20px",
   background: "linear-gradient(135deg, #020617, #0f172a)",
   color: "white",
   minHeight: "100vh"
 }
 
-const searchRow = { display: "flex", gap: "10px", marginBottom: "25px" }
+const searchRow = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "10px",
+  marginBottom: "20px"
+}
+
 const input = { padding: "10px", borderRadius: "8px", border: "none" }
 
-const statsRow = { display: "flex", gap: "20px", flexWrap: "wrap", marginBottom: "30px" }
+const statsRow = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+  gap: "15px",
+  marginBottom: "20px"
+}
+
 const statCard = { background: "#1e293b", padding: "20px", borderRadius: "12px" }
 const chartBox = { background: "#1e293b", padding: "20px", borderRadius: "12px" }
 
-const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }
+const grid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+  gap: "15px"
+}
+
 const card = { background: "#1e293b", padding: "20px", borderRadius: "12px" }
+
+const img = {
+  width: "100%",
+  height: "140px",
+  objectFit: "cover",
+  borderRadius: "10px",
+  marginTop: "10px"
+}
 
 export default AdminDashboard

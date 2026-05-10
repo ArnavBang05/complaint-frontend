@@ -10,7 +10,9 @@ function Dashboard() {
   const [category, setCategory] = useState("Other")
   const [priority, setPriority] = useState("Medium")
   const [image, setImage] = useState(null)
+  const [preview, setPreview] = useState("")
   const [loading, setLoading] = useState(true)
+  const [loadingBtn, setLoadingBtn] = useState(false)
 
   const fetchComplaints = async () => {
     try {
@@ -23,28 +25,23 @@ function Dashboard() {
     }
   }
 
-  useEffect(() => {
-    fetchComplaints()
-  }, [])
+  useEffect(() => { fetchComplaints() }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (loadingBtn) return
 
     try {
-      const formData = new FormData()
+      setLoadingBtn(true)
 
+      const formData = new FormData()
       formData.append("title", title)
       formData.append("description", description)
       formData.append("category", category)
       formData.append("priority", priority)
+      if (image) formData.append("image", image)
 
-      if (image) {
-        formData.append("image", image)
-      }
-
-      const res = await API.post("/complaints/create", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      })
+      const res = await API.post("/complaints/create", formData)
 
       setComplaints(prev => [res.data, ...prev])
 
@@ -53,12 +50,14 @@ function Dashboard() {
       setCategory("Other")
       setPriority("Medium")
       setImage(null)
+      setPreview("")
 
       toast.success("Complaint Created ✅")
 
-    } catch (err) {
-      console.log(err)
+    } catch {
       toast.error("Error ❌")
+    } finally {
+      setLoadingBtn(false)
     }
   }
 
@@ -79,8 +78,8 @@ function Dashboard() {
         <h1>Complaint Dashboard 🚀</h1>
 
         <form onSubmit={handleSubmit} style={form}>
-          <input placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} style={input} />
-          <input placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} style={input} />
+          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" style={input} />
+          <input value={description} onChange={e => setDescription(e.target.value)} placeholder="Description" style={input} />
 
           <select value={category} onChange={e => setCategory(e.target.value)} style={input}>
             <option>Electrical</option>
@@ -95,21 +94,25 @@ function Dashboard() {
             <option>High</option>
           </select>
 
-          {/* 📸 IMAGE INPUT */}
           <input
             type="file"
             accept="image/*"
-            capture="environment"
-            onChange={(e) => setImage(e.target.files[0])}
+            onChange={(e) => {
+              const file = e.target.files[0]
+              setImage(file)
+              if (file) setPreview(URL.createObjectURL(file))
+            }}
           />
 
-          <button style={btn}>Create</button>
+          {preview && <img src={preview} alt="" style={previewImg} />}
+
+          <button style={btn} disabled={loadingBtn}>
+            {loadingBtn ? "Uploading..." : "Create"}
+          </button>
         </form>
 
         {loading ? (
           <p>Loading...</p>
-        ) : complaints.length === 0 ? (
-          <p>No complaints yet</p>
         ) : (
           <div style={grid}>
             {complaints.map(c => (
@@ -121,18 +124,13 @@ function Dashboard() {
                 <p>⚡ {c.priority}</p>
 
                 <p style={{
-                  color: c.status === "resolved" ? "green" : "orange"
+                  color: c.status === "resolved" ? "#22c55e" : "#f59e0b",
+                  fontWeight: "bold"
                 }}>
                   {c.status}
                 </p>
 
-                {c.image && (
-                  <img
-                    src={c.image}
-                    alt=""
-                    style={{ width: "100%", borderRadius: "8px", marginTop: "10px" }}
-                  />
-                )}
+                {c.image && <img src={c.image} alt="" style={img} />}
 
                 <button onClick={() => handleDelete(c._id)} style={deleteBtn}>
                   Delete
@@ -146,14 +144,14 @@ function Dashboard() {
   )
 }
 
-console.log("NEW BUILD")
-
-const container = { padding: "20px", maxWidth: "900px", margin: "auto" }
-const form = { display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }
+const container = { padding: "15px", maxWidth: "1000px", margin: "auto" }
+const form = { maxWidth: "500px", margin: "20px auto", display: "flex", flexDirection: "column", gap: "10px", background: "#1e293b", padding: "20px", borderRadius: "12px" }
 const input = { padding: "10px", borderRadius: "8px", border: "none" }
 const btn = { padding: "12px", background: "#38bdf8", border: "none", borderRadius: "8px" }
-const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "15px" }
+const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "15px" }
 const card = { background: "#1e293b", padding: "15px", borderRadius: "10px" }
 const deleteBtn = { marginTop: "10px", background: "red", color: "white", border: "none", padding: "10px", borderRadius: "6px", width: "100%" }
+const img = { width: "100%", height: "140px", objectFit: "cover", borderRadius: "10px", marginTop: "10px" }
+const previewImg = { width: "100%", borderRadius: "10px" }
 
 export default Dashboard

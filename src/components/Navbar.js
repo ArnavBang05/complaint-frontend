@@ -12,18 +12,17 @@ function Navbar() {
   return (
     <div style={{
       display: "flex",
+      flexWrap: "wrap",
       justifyContent: "space-between",
-      padding: "15px",
+      alignItems: "center",
+      padding: "10px",
       background: "#020617",
       color: "white"
     }}>
-      <h2>🚀 Complaint System</h2>
+      <h2 style={{ fontSize: "18px" }}>🚀 Complaint System</h2>
 
-      <div>
-        <span style={{ marginRight: "15px" }}>
-          {role?.toUpperCase()}
-        </span>
-
+      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <span>{role?.toUpperCase()}</span>
         <button onClick={logout}>Logout</button>
       </div>
     </div>
