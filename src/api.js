@@ -1,10 +1,9 @@
 import axios from "axios"
 
 const API = axios.create({
-  baseURL: "https://complaint-backend-j2wy.onrender.com/api"
+  baseURL: process.env.REACT_APP_API_URL + "/api"
 })
 
-// 🔥 AUTO ADD TOKEN TO EVERY REQUEST
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token")
   if (token) {
