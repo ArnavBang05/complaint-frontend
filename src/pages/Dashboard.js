@@ -18,20 +18,15 @@ function Dashboard() {
     try {
       const res = await API.get("/complaints/my")
       setComplaints(res.data)
-    } catch {
-      console.log("Fetch error")
-    } finally {
-      setLoading(false)
-    }
+    } catch {}
+    finally { setLoading(false) }
   }
 
   useEffect(() => {
-  fetchComplaints()
-
-  const interval = setInterval(fetchComplaints, 3000)
-
-  return () => clearInterval(interval)
-}, [])
+    fetchComplaints()
+    const interval = setInterval(fetchComplaints, 3000)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -48,31 +43,17 @@ function Dashboard() {
       if (image) formData.append("image", image)
 
       const res = await API.post("/complaints/create", formData)
-
       setComplaints(prev => [res.data, ...prev])
 
-      setTitle("")
-      setDescription("")
-      setCategory("Other")
-      setPriority("Medium")
-      setImage(null)
-      setPreview("")
+      setTitle(""); setDescription("")
+      setCategory("Other"); setPriority("Medium")
+      setImage(null); setPreview("")
 
       toast.success("Complaint Created ✅")
-
     } catch {
       toast.error("Error ❌")
     } finally {
       setLoadingBtn(false)
-    }
-  }
-
-  const handleDelete = async (id) => {
-    try {
-      await API.delete(`/complaints/${id}`)
-      setComplaints(prev => prev.filter(c => c._id !== id))
-    } catch {
-      toast.error("Delete failed ❌")
     }
   }
 
@@ -81,11 +62,11 @@ function Dashboard() {
       <Navbar />
 
       <div style={container}>
-        <h1>Complaint Dashboard 🚀</h1>
+        <h1 style={heading}>🚀 Complaint Dashboard</h1>
 
         <form onSubmit={handleSubmit} style={form}>
-          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" style={input} />
-          <input value={description} onChange={e => setDescription(e.target.value)} placeholder="Description" style={input} />
+          <input placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} style={input}/>
+          <input placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} style={input}/>
 
           <select value={category} onChange={e => setCategory(e.target.value)} style={input}>
             <option>Electrical</option>
@@ -100,9 +81,7 @@ function Dashboard() {
             <option>High</option>
           </select>
 
-          <input
-            type="file"
-            accept="image/*"
+          <input type="file" accept="image/*"
             onChange={(e) => {
               const file = e.target.files[0]
               setImage(file)
@@ -110,37 +89,31 @@ function Dashboard() {
             }}
           />
 
-          {preview && <img src={preview} alt="" style={previewImg} />}
+          {preview && <img src={preview} alt="" style={previewImg}/>}
 
           <button style={btn} disabled={loadingBtn}>
             {loadingBtn ? "Uploading..." : "Create"}
           </button>
         </form>
 
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
+        {loading ? <p>Loading...</p> : (
           <div style={grid}>
             {complaints.map(c => (
-              <div key={c._id} style={card}>
+              <div key={c._id} style={card}
+                onMouseEnter={e => e.currentTarget.style.transform="scale(1.03)"}
+                onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
+              >
                 <h3>{c.title}</h3>
                 <p>{c.description}</p>
 
                 <p>📂 {c.category}</p>
                 <p>⚡ {c.priority}</p>
 
-                <p style={{
-                  color: c.status === "resolved" ? "#22c55e" : "#f59e0b",
-                  fontWeight: "bold"
-                }}>
-                  {c.status}
-                </p>
+                <span style={status(c.status)}>
+                  {c.status.toUpperCase()}
+                </span>
 
-                {c.image && <img src={c.image} alt="" style={img} />}
-
-                <button onClick={() => handleDelete(c._id)} style={deleteBtn}>
-                  Delete
-                </button>
+                {c.image && <img src={c.image} alt="" style={img}/>}
               </div>
             ))}
           </div>
@@ -150,14 +123,55 @@ function Dashboard() {
   )
 }
 
-const container = { padding: "15px", maxWidth: "1000px", margin: "auto" }
-const form = { maxWidth: "500px", margin: "20px auto", display: "flex", flexDirection: "column", gap: "10px", background: "#1e293b", padding: "20px", borderRadius: "12px" }
-const input = { padding: "10px", borderRadius: "8px", border: "none" }
-const btn = { padding: "12px", background: "#38bdf8", border: "none", borderRadius: "8px" }
-const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "15px" }
-const card = { background: "#1e293b", padding: "15px", borderRadius: "10px" }
-const deleteBtn = { marginTop: "10px", background: "red", color: "white", border: "none", padding: "10px", borderRadius: "6px", width: "100%" }
-const img = { width: "100%", height: "140px", objectFit: "cover", borderRadius: "10px", marginTop: "10px" }
-const previewImg = { width: "100%", borderRadius: "10px" }
+/* styles */
+const container = { padding:"20px", maxWidth:"1100px", margin:"auto" }
+const heading = { marginBottom:"20px", fontSize:"28px" }
+
+const form = {
+  maxWidth:"500px", margin:"auto",
+  display:"flex", flexDirection:"column", gap:"10px",
+  background:"rgba(30,41,59,0.7)",
+  padding:"20px", borderRadius:"16px",
+  backdropFilter:"blur(10px)"
+}
+
+const input = { padding:"10px", borderRadius:"8px", border:"none" }
+
+const btn = {
+  padding:"12px",
+  background:"linear-gradient(135deg,#38bdf8,#0ea5e9)",
+  border:"none", borderRadius:"10px", color:"white"
+}
+
+const grid = {
+  display:"grid",
+  gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",
+  gap:"20px"
+}
+
+const card = {
+  background:"rgba(30,41,59,0.7)",
+  padding:"15px",
+  borderRadius:"16px",
+  backdropFilter:"blur(10px)",
+  transition:"0.3s"
+}
+
+const img = {
+  width:"100%", height:"150px",
+  objectFit:"cover",
+  borderRadius:"12px",
+  marginTop:"10px"
+}
+
+const previewImg = { width:"100%", borderRadius:"10px" }
+
+const status = (s) => ({
+  padding:"5px 10px",
+  borderRadius:"20px",
+  fontSize:"12px",
+  background: s==="resolved" ? "#22c55e33" : "#f59e0b33",
+  color: s==="resolved" ? "#22c55e" : "#f59e0b"
+})
 
 export default Dashboard

@@ -42,25 +42,23 @@ function Login() {
     }
   }
 
-  // 🔥 Enter key support
   const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleLogin()
-    }
+    if (e.key === "Enter") handleLogin()
   }
 
   return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
+    <div style={container}>
+      <div style={card}>
 
-        <h2 style={titleStyle}>🔐 Login</h2>
+        <h2 style={title}>🔐 Welcome Back</h2>
+        <p style={subtitle}>Login to continue</p>
 
         <input
           placeholder="Email"
           value={email}
           onChange={e => setEmail(e.target.value)}
           onKeyDown={handleKeyPress}
-          style={inputStyle}
+          style={input}
         />
 
         <div style={{ position: "relative" }}>
@@ -70,13 +68,12 @@ function Login() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             onKeyDown={handleKeyPress}
-            style={inputStyle}
+            style={input}
           />
 
-          {/* 👁 Toggle */}
           <span
             onClick={() => setShowPassword(!showPassword)}
-            style={eyeStyle}
+            style={eye}
           >
             {showPassword ? "🙈" : "👁"}
           </span>
@@ -86,17 +83,18 @@ function Login() {
           onClick={handleLogin}
           disabled={loading}
           style={{
-            ...buttonStyle,
+            ...button,
             opacity: loading ? 0.7 : 1
           }}
+          onMouseEnter={e => e.target.style.transform = "scale(1.03)"}
+          onMouseLeave={e => e.target.style.transform = "scale(1)"}
         >
           {loading ? "Logging in..." : "Login"}
         </button>
 
-        {/* 🔥 REGISTER LINK (MAIN FIX) */}
         <p style={linkText}>
           Don’t have an account?{" "}
-          <Link to="/register" style={linkStyle}>
+          <Link to="/register" style={link}>
             Register
           </Link>
         </p>
@@ -106,45 +104,59 @@ function Login() {
   )
 }
 
-// 🔥 Styles
-const containerStyle = {
+/* 🔥 STYLES */
+
+const container = {
   height: "100vh",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  background: "linear-gradient(135deg, #020617, #0f172a)"
+  background: "linear-gradient(135deg,#020617,#0f172a)",
+  padding: "20px"
 }
 
-const cardStyle = {
-  background: "#1e293b",
-  padding: "40px",
-  borderRadius: "12px",
-  width: "320px",
-  boxShadow: "0 10px 25px rgba(0,0,0,0.4)"
+const card = {
+  width: "100%",
+  maxWidth: "360px",
+  background: "rgba(30,41,59,0.7)",
+  padding: "30px",
+  borderRadius: "16px",
+  backdropFilter: "blur(12px)",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.4)"
 }
 
-const titleStyle = {
-  marginBottom: "20px",
+const title = {
   textAlign: "center",
-  color: "white"
+  color: "white",
+  marginBottom: "5px"
 }
 
-const inputStyle = {
-  width: "100%",
-  padding: "12px",
-  marginBottom: "10px",
-  borderRadius: "8px",
-  border: "none"
+const subtitle = {
+  textAlign: "center",
+  color: "#94a3b8",
+  marginBottom: "20px",
+  fontSize: "14px"
 }
 
-const buttonStyle = {
+const input = {
   width: "100%",
   padding: "12px",
-  background: "#38bdf8",
+  marginBottom: "12px",
+  borderRadius: "10px",
   border: "none",
-  borderRadius: "8px",
+  outline: "none"
+}
+
+const button = {
+  width: "100%",
+  padding: "12px",
+  background: "linear-gradient(135deg,#38bdf8,#0ea5e9)",
+  border: "none",
+  borderRadius: "10px",
   fontWeight: "bold",
-  cursor: "pointer"
+  color: "white",
+  cursor: "pointer",
+  transition: "0.2s"
 }
 
 const linkText = {
@@ -153,15 +165,15 @@ const linkText = {
   color: "#cbd5f5"
 }
 
-const linkStyle = {
+const link = {
   color: "#38bdf8",
-  textDecoration: "none",
-  fontWeight: "bold"
+  fontWeight: "bold",
+  textDecoration: "none"
 }
 
-const eyeStyle = {
+const eye = {
   position: "absolute",
-  right: "10px",
+  right: "12px",
   top: "50%",
   transform: "translateY(-50%)",
   cursor: "pointer"

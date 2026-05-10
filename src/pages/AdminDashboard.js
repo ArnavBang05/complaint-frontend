@@ -85,15 +85,16 @@ function AdminDashboard() {
   }
 
   return (
-    <div style={{ display: "flex" }}>
+    <div style={{ display: "flex", flexWrap: "wrap" }}>
       <Sidebar />
 
       <div style={mainContainer}>
-        <h1>Admin Dashboard 🚀</h1>
+        <h1 style={heading}>📊 Admin Dashboard</h1>
 
+        {/* SEARCH + FILTER */}
         <div style={searchRow}>
           <input
-            placeholder="Search..."
+            placeholder="🔍 Search complaints..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={input}
@@ -110,6 +111,7 @@ function AdminDashboard() {
           <h3 style={{ textAlign: "center" }}>Loading...</h3>
         ) : (
           <>
+            {/* STATS */}
             <div style={statsRow}>
               <div style={statCard}><h3>Total</h3><p>{complaints.length}</p></div>
               <div style={statCard}><h3>Pending</h3><p>{complaints.filter(c => c.status === "pending").length}</p></div>
@@ -117,22 +119,26 @@ function AdminDashboard() {
               <div style={chartBox}><Pie data={chartData} /></div>
             </div>
 
+            {/* CARDS */}
             <div style={grid}>
               {filtered.map(c => (
-                <div key={c._id} style={card}>
+                <div
+                  key={c._id}
+                  style={card}
+                  onMouseEnter={e => e.currentTarget.style.transform = "scale(1.03)"}
+                  onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+                >
                   <h3>{c.title}</h3>
-                  <p>{c.description}</p>
+                  <p style={{ opacity: 0.8 }}>{c.description}</p>
 
                   {c.image && (
                     <img src={c.image} alt="" style={img} />
                   )}
 
-                  <p style={{
-                    color: c.status === "resolved" ? "#22c55e" : "#f59e0b",
-                    fontWeight: "bold"
-                  }}>
+                  {/* STATUS BADGE */}
+                  <span style={status(c.status)}>
                     {c.status.toUpperCase()}
-                  </p>
+                  </span>
 
                   <select
                     value={c.status}
@@ -152,12 +158,20 @@ function AdminDashboard() {
   )
 }
 
+/* 🔥 STYLES */
+
 const mainContainer = {
   flex: 1,
   padding: "20px",
-  background: "linear-gradient(135deg, #020617, #0f172a)",
+  background: "linear-gradient(135deg,#020617,#0f172a)",
   color: "white",
-  minHeight: "100vh"
+  minHeight: "100vh",
+  width: "100%"
+}
+
+const heading = {
+  fontSize: "28px",
+  marginBottom: "20px"
 }
 
 const searchRow = {
@@ -167,32 +181,63 @@ const searchRow = {
   marginBottom: "20px"
 }
 
-const input = { padding: "10px", borderRadius: "8px", border: "none" }
+const input = {
+  padding: "10px",
+  borderRadius: "8px",
+  border: "none"
+}
 
 const statsRow = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))",
   gap: "15px",
-  marginBottom: "20px"
+  marginBottom: "25px"
 }
 
-const statCard = { background: "#1e293b", padding: "20px", borderRadius: "12px" }
-const chartBox = { background: "#1e293b", padding: "20px", borderRadius: "12px" }
+const statCard = {
+  background: "rgba(30,41,59,0.7)",
+  padding: "20px",
+  borderRadius: "16px",
+  backdropFilter: "blur(10px)"
+}
+
+const chartBox = {
+  background: "rgba(30,41,59,0.7)",
+  padding: "20px",
+  borderRadius: "16px",
+  backdropFilter: "blur(10px)"
+}
 
 const grid = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-  gap: "15px"
+  gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))",
+  gap: "20px"
 }
 
-const card = { background: "#1e293b", padding: "20px", borderRadius: "12px" }
+const card = {
+  background: "rgba(30,41,59,0.7)",
+  padding: "15px",
+  borderRadius: "16px",
+  backdropFilter: "blur(10px)",
+  transition: "0.3s"
+}
 
 const img = {
   width: "100%",
-  height: "140px",
+  height: "150px",
   objectFit: "cover",
-  borderRadius: "10px",
+  borderRadius: "12px",
   marginTop: "10px"
 }
+
+const status = (s) => ({
+  marginTop: "10px",
+  display: "inline-block",
+  padding: "5px 10px",
+  borderRadius: "20px",
+  fontSize: "12px",
+  background: s === "resolved" ? "#22c55e33" : "#f59e0b33",
+  color: s === "resolved" ? "#22c55e" : "#f59e0b"
+})
 
 export default AdminDashboard
