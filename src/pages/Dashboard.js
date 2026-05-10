@@ -25,7 +25,13 @@ function Dashboard() {
     }
   }
 
-  useEffect(() => { fetchComplaints() }, [])
+  useEffect(() => {
+  fetchComplaints()
+
+  const interval = setInterval(fetchComplaints, 3000)
+
+  return () => clearInterval(interval)
+}, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
