@@ -146,6 +146,8 @@ function Dashboard() {
   )
 }
 
+console.log("NEW BUILD")
+
 const container = { padding: "20px", maxWidth: "900px", margin: "auto" }
 const form = { display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }
 const input = { padding: "10px", borderRadius: "8px", border: "none" }
