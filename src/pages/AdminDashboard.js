@@ -22,14 +22,12 @@ function AdminDashboard() {
   const token = localStorage.getItem("token")
   const role = localStorage.getItem("role")
 
-  // 🔐 Protect admin
   useEffect(() => {
     if (role !== "admin") {
       window.location.href = "/dashboard"
     }
   }, [role])
 
-  // 🔄 Fetch complaints
   const fetchAllComplaints = async () => {
     try {
       const res = await axios.get(
@@ -46,14 +44,12 @@ function AdminDashboard() {
     }
   }
 
-  // 🔁 Auto refresh
   useEffect(() => {
     fetchAllComplaints()
     const interval = setInterval(fetchAllComplaints, 3000)
     return () => clearInterval(interval)
   }, [])
 
-  // 🔁 Update status
   const handleUpdate = async (id, status) => {
     try {
       await axios.put(
@@ -72,13 +68,11 @@ function AdminDashboard() {
     }
   }
 
-  // 🔍 Filter
   const filtered = complaints.filter(c =>
     (c.title || "").toLowerCase().includes(search.toLowerCase()) &&
     (filter === "all" || c.status === filter)
   )
 
-  // 📊 Chart
   const chartData = {
     labels: ["Pending", "Resolved"],
     datasets: [{
@@ -149,6 +143,18 @@ function AdminDashboard() {
                 <div key={c._id} style={card}>
                   <h3>{c.title}</h3>
                   <p style={{ opacity: 0.8 }}>{c.description}</p>
+
+                  {/* 🔥 CATEGORY */}
+                  <p style={{ marginTop: "6px", fontSize: "13px", opacity: 0.8 }}>
+                    📂 {c.category || "Other"}
+                  </p>
+
+                  {/* 🔥 PRIORITY */}
+                  <p style={{ marginTop: "4px", fontSize: "13px" }}>
+                    ⚡ <span style={priorityStyle(c.priority)}>
+                      {c.priority || "Medium"}
+                    </span>
+                  </p>
 
                   {c.image && (
                     <img src={c.image} alt="" style={img} />
@@ -256,6 +262,20 @@ const statusStyle = (s) => ({
   fontSize: "12px",
   background: s === "resolved" ? "#22c55e33" : "#f59e0b33",
   color: s === "resolved" ? "#22c55e" : "#f59e0b"
+})
+
+const priorityStyle = (p) => ({
+  padding: "3px 8px",
+  borderRadius: "10px",
+  fontSize: "12px",
+  background:
+    p === "High" ? "#ef444433" :
+    p === "Low" ? "#22c55e33" :
+    "#f59e0b33",
+  color:
+    p === "High" ? "#ef4444" :
+    p === "Low" ? "#22c55e" :
+    "#f59e0b"
 })
 
 export default AdminDashboard
