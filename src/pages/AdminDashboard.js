@@ -148,7 +148,6 @@ function AdminDashboard() {
                     <option value="pending">pending</option>
                     <option value="resolved">resolved</option>
                   </select>
-
                 </div>
               ))}
             </div>
