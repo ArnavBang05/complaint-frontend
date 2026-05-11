@@ -22,12 +22,14 @@ function AdminDashboard() {
   const token = localStorage.getItem("token")
   const role = localStorage.getItem("role")
 
+  // 🔐 Protect admin
   useEffect(() => {
     if (role !== "admin") {
       window.location.href = "/dashboard"
     }
   }, [role])
 
+  // 🔄 Fetch complaints
   const fetchAllComplaints = async () => {
     try {
       const res = await axios.get(
@@ -44,12 +46,14 @@ function AdminDashboard() {
     }
   }
 
+  // 🔁 Auto refresh
   useEffect(() => {
     fetchAllComplaints()
     const interval = setInterval(fetchAllComplaints, 3000)
     return () => clearInterval(interval)
   }, [])
 
+  // 🔁 Update status
   const handleUpdate = async (id, status) => {
     try {
       await axios.put(
@@ -68,11 +72,13 @@ function AdminDashboard() {
     }
   }
 
+  // 🔍 Filter
   const filtered = complaints.filter(c =>
     (c.title || "").toLowerCase().includes(search.toLowerCase()) &&
     (filter === "all" || c.status === filter)
   )
 
+  // 📊 Chart
   const chartData = {
     labels: ["Pending", "Resolved"],
     datasets: [{
@@ -85,13 +91,13 @@ function AdminDashboard() {
   }
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap" }}>
+    <div style={{ display: "flex" }}>
       <Sidebar />
 
       <div style={mainContainer}>
         <h1 style={heading}>📊 Admin Dashboard</h1>
 
-        {/* SEARCH + FILTER */}
+        {/* SEARCH */}
         <div style={searchRow}>
           <input
             placeholder="🔍 Search complaints..."
@@ -100,7 +106,11 @@ function AdminDashboard() {
             style={input}
           />
 
-          <select value={filter} onChange={e => setFilter(e.target.value)} style={input}>
+          <select
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+            style={input}
+          >
             <option value="all">All</option>
             <option value="pending">Pending</option>
             <option value="resolved">Resolved</option>
@@ -113,21 +123,30 @@ function AdminDashboard() {
           <>
             {/* STATS */}
             <div style={statsRow}>
-              <div style={statCard}><h3>Total</h3><p>{complaints.length}</p></div>
-              <div style={statCard}><h3>Pending</h3><p>{complaints.filter(c => c.status === "pending").length}</p></div>
-              <div style={statCard}><h3>Resolved</h3><p>{complaints.filter(c => c.status === "resolved").length}</p></div>
-              <div style={chartBox}><Pie data={chartData} /></div>
+              <div style={statCard}>
+                <h3>Total</h3>
+                <p>{complaints.length}</p>
+              </div>
+
+              <div style={statCard}>
+                <h3>Pending</h3>
+                <p>{complaints.filter(c => c.status === "pending").length}</p>
+              </div>
+
+              <div style={statCard}>
+                <h3>Resolved</h3>
+                <p>{complaints.filter(c => c.status === "resolved").length}</p>
+              </div>
+
+              <div style={chartBox}>
+                <Pie data={chartData} />
+              </div>
             </div>
 
             {/* CARDS */}
             <div style={grid}>
               {filtered.map(c => (
-                <div
-                  key={c._id}
-                  style={card}
-                  onMouseEnter={e => e.currentTarget.style.transform = "scale(1.03)"}
-                  onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
-                >
+                <div key={c._id} style={card}>
                   <h3>{c.title}</h3>
                   <p style={{ opacity: 0.8 }}>{c.description}</p>
 
@@ -135,8 +154,7 @@ function AdminDashboard() {
                     <img src={c.image} alt="" style={img} />
                   )}
 
-                  {/* STATUS BADGE */}
-                  <span style={status(c.status)}>
+                  <span style={statusStyle(c.status)}>
                     {c.status.toUpperCase()}
                   </span>
 
@@ -163,10 +181,10 @@ function AdminDashboard() {
 const mainContainer = {
   flex: 1,
   padding: "20px",
+  marginLeft: window.innerWidth < 768 ? "0px" : "250px",
   background: "linear-gradient(135deg,#020617,#0f172a)",
   color: "white",
-  minHeight: "100vh",
-  width: "100%"
+  minHeight: "100vh"
 }
 
 const heading = {
@@ -230,7 +248,7 @@ const img = {
   marginTop: "10px"
 }
 
-const status = (s) => ({
+const statusStyle = (s) => ({
   marginTop: "10px",
   display: "inline-block",
   padding: "5px 10px",
