@@ -68,6 +68,27 @@ function AdminDashboard() {
     }
   }
 
+  // 🔥 NEW DELETE FUNCTION
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this complaint?")
+    if (!confirmDelete) return
+
+    try {
+      await axios.delete(
+        `https://complaint-backend-j2wy.onrender.com/api/complaints/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      )
+
+      setComplaints(prev => prev.filter(c => c._id !== id))
+
+      toast.success("Deleted 🗑️")
+    } catch {
+      toast.error("Delete failed ❌")
+    }
+  }
+
   const filtered = complaints.filter(c =>
     (c.title || "").toLowerCase().includes(search.toLowerCase()) &&
     (filter === "all" || c.status === filter)
@@ -91,7 +112,6 @@ function AdminDashboard() {
       <div style={mainContainer}>
         <h1 style={heading}>📊 Admin Dashboard</h1>
 
-        {/* SEARCH + FILTER */}
         <div style={searchRow}>
           <input
             placeholder="🔍 Search complaints..."
@@ -111,7 +131,6 @@ function AdminDashboard() {
           <h3 style={{ textAlign: "center" }}>Loading...</h3>
         ) : (
           <>
-            {/* STATS */}
             <div style={statsRow}>
               <div style={statCard}><h3>Total</h3><p>{complaints.length}</p></div>
               <div style={statCard}><h3>Pending</h3><p>{complaints.filter(c => c.status === "pending").length}</p></div>
@@ -119,7 +138,6 @@ function AdminDashboard() {
               <div style={chartBox}><Pie data={chartData} /></div>
             </div>
 
-            {/* CARDS */}
             <div style={grid}>
               {filtered.map(c => (
                 <div
@@ -135,7 +153,6 @@ function AdminDashboard() {
                     <img src={c.image} alt="" style={img} />
                   )}
 
-                  {/* STATUS BADGE */}
                   <span style={status(c.status)}>
                     {c.status.toUpperCase()}
                   </span>
@@ -148,6 +165,15 @@ function AdminDashboard() {
                     <option value="pending">pending</option>
                     <option value="resolved">resolved</option>
                   </select>
+
+                  {/* 🔥 DELETE BUTTON */}
+                  <button
+                    onClick={() => handleDelete(c._id)}
+                    style={deleteBtn}
+                  >
+                    🗑️ Delete
+                  </button>
+
                 </div>
               ))}
             </div>
@@ -158,7 +184,7 @@ function AdminDashboard() {
   )
 }
 
-/* 🔥 STYLES */
+/* STYLES */
 
 const mainContainer = {
   flex: 1,
@@ -169,10 +195,7 @@ const mainContainer = {
   width: "100%"
 }
 
-const heading = {
-  fontSize: "28px",
-  marginBottom: "20px"
-}
+const heading = { fontSize: "28px", marginBottom: "20px" }
 
 const searchRow = {
   display: "flex",
@@ -181,11 +204,7 @@ const searchRow = {
   marginBottom: "20px"
 }
 
-const input = {
-  padding: "10px",
-  borderRadius: "8px",
-  border: "none"
-}
+const input = { padding: "10px", borderRadius: "8px", border: "none" }
 
 const statsRow = {
   display: "grid",
@@ -239,5 +258,16 @@ const status = (s) => ({
   background: s === "resolved" ? "#22c55e33" : "#f59e0b33",
   color: s === "resolved" ? "#22c55e" : "#f59e0b"
 })
+
+const deleteBtn = {
+  marginTop: "10px",
+  background: "linear-gradient(135deg,#ef4444,#dc2626)",
+  border: "none",
+  padding: "10px",
+  borderRadius: "8px",
+  color: "white",
+  cursor: "pointer",
+  fontWeight: "bold"
+}
 
 export default AdminDashboard
